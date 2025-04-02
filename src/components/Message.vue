@@ -3,7 +3,6 @@
   <div class="message">
     <!-- Logo -->
     <div class="logo">
-      <img class="logo-img" :src="siteLogo" alt="logo" />
       <div :class="{ name: true, 'text-hidden': true, long: siteUrl[0].length >= 6 }">
         <span class="bg">{{ siteUrl[0] }}</span>
         <span class="sm">.{{ siteUrl[1] }}</span>
@@ -16,9 +15,9 @@
           <QuoteLeft />
         </Icon>
         <Transition name="fade" mode="out-in">
-          <div :key="descriptionText.hello + descriptionText.text" class="text">
-            <p>{{ descriptionText.hello }}</p>
-            <p>{{ descriptionText.text }}</p>
+          <div :key="hitokotoData.text" class="text" @click.stop="getHitokotoData">
+            <span class="hitokoto-text">{{ hitokotoData.text }}</span>
+            <span class="hitokoto-from">-「&nbsp;{{ hitokotoData.from }}&nbsp;」</span>
           </div>
         </Transition>
         <Icon size="16">
@@ -34,10 +33,11 @@ import { Icon } from "@vicons/utils";
 import { QuoteLeft, QuoteRight } from "@vicons/fa";
 import { Error } from "@icon-park/vue-next";
 import { mainStore } from "@/store";
+import { getHitokoto } from "@/api";
+import { h, reactive, onMounted, computed } from "vue";
+
 const store = mainStore();
 
-// 主页站点logo
-const siteLogo = import.meta.env.VITE_SITE_MAIN_LOGO;
 // 站点链接
 const siteUrl = computed(() => {
   const url = import.meta.env.VITE_SITE_URL;
@@ -50,11 +50,30 @@ const siteUrl = computed(() => {
   return url.split(".");
 });
 
-// 简介区域文字
-const descriptionText = reactive({
-  hello: import.meta.env.VITE_DESC_HELLO,
-  text: import.meta.env.VITE_DESC_TEXT,
+// Hitokoto 数据
+const hitokotoData = reactive({
+  text: "这里应该显示一句话",
+  from: "無名",
 });
+
+// 获取 Hitokoto
+const getHitokotoData = async () => {
+  try {
+    const result = await getHitokoto();
+    hitokotoData.text = result.hitokoto;
+    hitokotoData.from = result.from;
+  } catch (error) {
+    console.error("一言获取失败:", error);
+    ElMessage({
+      message: "一言获取失败",
+      grouping: true,
+      icon: h(Error, {
+        theme: "filled",
+        fill: "#efefef",
+      }),
+    });
+  }
+};
 
 // 切换右侧功能区
 const changeBox = () => {
@@ -72,19 +91,10 @@ const changeBox = () => {
   }
 };
 
-// 监听状态变化
-watch(
-  () => store.boxOpenState,
-  (value) => {
-    if (value) {
-      descriptionText.hello = import.meta.env.VITE_DESC_HELLO_OTHER;
-      descriptionText.text = import.meta.env.VITE_DESC_TEXT_OTHER;
-    } else {
-      descriptionText.hello = import.meta.env.VITE_DESC_HELLO;
-      descriptionText.text = import.meta.env.VITE_DESC_TEXT;
-    }
-  },
-);
+// 组件挂载时获取 Hitokoto
+onMounted(() => {
+  getHitokotoData();
+});
 </script>
 
 <style lang="scss" scoped>
@@ -139,6 +149,7 @@ watch(
     margin-top: 3.5rem;
     max-width: 460px;
     animation: fade 0.5s;
+    cursor: pointer;
 
     .content {
       display: flex;
@@ -146,14 +157,23 @@ watch(
 
       .text {
         margin: 0.75rem 1rem;
-        line-height: 2rem;
-        margin-right: auto;
-        transition: opacity 0.2s;
+        flex-grow: 1;
 
-        p {
-          &:nth-of-type(1) {
-            font-family: "Pacifico-Regular";
-          }
+        .hitokoto-text {
+          display: -webkit-box;
+          -webkit-line-clamp: 3;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          word-break: break-all;
+          line-height: 1.5;
+        }
+        .hitokoto-from {
+          display: block;
+          margin-top: 0.5rem;
+          text-align: right;
+          font-size: 0.9em;
+          opacity: 0.8;
         }
       }
 
