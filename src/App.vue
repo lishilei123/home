@@ -236,9 +236,8 @@ onBeforeUnmount(() => {
     }
   }
   @media (max-width: 390px) {
-    overflow-x: auto;
     .container {
-      width: 391px;
+      width: 100%;
     }
     .menu {
       left: 167.5px; // 391px * 0.5 - 28px
@@ -248,6 +247,7 @@ onBeforeUnmount(() => {
     }
     @media (min-height: 721px) {
       overflow-y: hidden;
+      overflow-x: hidden;
     }
   }
 }

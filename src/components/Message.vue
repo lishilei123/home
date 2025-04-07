@@ -3,6 +3,8 @@
   <div class="message">
     <!-- Logo -->
     <div class="logo">
+      
+      <img class="logo-img" :src="siteLogo" alt="logo" />
       <div :class="{ name: true, 'text-hidden': true, long: siteUrl[0].length >= 6 }">
         <span class="bg">{{ siteUrl[0] }}</span>
         <span class="sm">.{{ siteUrl[1] }}</span>
@@ -38,6 +40,8 @@ import { h, reactive, onMounted, computed } from "vue";
 
 const store = mainStore();
 
+
+const siteLogo = import.meta.env.VITE_SITE_MAIN_LOGO;
 // 站点链接
 const siteUrl = computed(() => {
   const url = import.meta.env.VITE_SITE_URL;
@@ -63,7 +67,7 @@ const getHitokotoData = async () => {
     hitokotoData.text = result.hitokoto;
     hitokotoData.from = result.from;
   } catch (error) {
-    console.error("一言获取失败:", error);
+//    console.error("一言获取失败:", error);
     ElMessage({
       message: "一言获取失败",
       grouping: true,
@@ -141,6 +145,15 @@ onMounted(() => {
 
     @media (max-width: 720px) {
       max-width: 100%;
+      .logo-img {
+        display: none;
+      }
+      .name {
+        text-align: center;
+        padding-left: 0;
+        transform: none;
+        height: auto;
+      }
     }
   }
 

@@ -52,7 +52,7 @@ const getHitokotoData = async () => {
     hitokotoData.from = result.from;
   } catch (error) {
     ElMessage({
-      message: "一言获取失败",
+     // message: "一言获取失败",
       icon: h(Error, {
         theme: "filled",
         fill: "#efefef",
